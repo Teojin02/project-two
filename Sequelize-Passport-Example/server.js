@@ -1,6 +1,7 @@
 // Requiring necessary npm packages
 const express = require("express");
 const session = require("express-session");
+const exphbs = require("express-handlebars");
 // Requiring passport as we've configured it
 const passport = require("./config/passport");
 const morgan = require("morgan");
@@ -8,10 +9,20 @@ const morgan = require("morgan");
 const PORT = process.env.PORT || 8080;
 const db = require("./models");
 
+const hbs = exphbs.create({
+  helpers: {
+    format_date: date => {
+      return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+    }
+  }
+});
+
 // Creating express app and configuring middleware needed for authentication
 const app = express();
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
+app.engine("handlebars", hbs.engine);
+app.set("view engine", "handlebars");
 app.use(express.json());
 app.use(express.static("public"));
 // We need to use sessions to keep track of our user's login status
